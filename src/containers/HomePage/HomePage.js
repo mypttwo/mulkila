@@ -1,13 +1,14 @@
 import React, { Component } from "react";
-import { Modal, ModalBody} from 'reactstrap';
+import { Modal, ModalBody } from 'reactstrap';
 
 import axios from 'axios';
 
 import GameRules from '../../components/Rules';
 
-import {darcha} from '../../config';
+import { darcha } from '../../config';
 import loadWeb3 from '../../ethUtils/loadWeb3';
 import getNetwork from '../../ethUtils/getNetwork';
+import {withContext} from '../../ContextProvider';
 
 class HomePage extends Component {
 
@@ -16,7 +17,7 @@ class HomePage extends Component {
   ATTRIBUTIONS = 5;
 
   state = {
-    display : this.HOME,
+    display: this.HOME,
     metamaskModal: false
   }
 
@@ -24,28 +25,28 @@ class HomePage extends Component {
     switch (this.state.display) {
       case this.RULES:
         return this.getRules();
-        case this.ATTRIBUTIONS:
+      case this.ATTRIBUTIONS:
         return this.getAttributions();
       default:
-      return this.getHome();
+        return this.getHome();
     }
   }
 
   displayHome = () => {
     this.setState({
-      display : this.HOME
+      display: this.HOME
     })
   }
 
   displayRules = () => {
     this.setState({
-      display : this.RULES
+      display: this.RULES
     })
   }
-  
+
   displayAttributions = () => {
     this.setState({
-      display : this.ATTRIBUTIONS
+      display: this.ATTRIBUTIONS
     })
   }
 
@@ -56,7 +57,7 @@ class HomePage extends Component {
   }
 
   enterGame = () => {
-    loadWeb3(this.handleWeb3NotAvailable, this.handleWeb3Available);    
+    loadWeb3(this.handleWeb3NotAvailable, this.handleWeb3Available);
   }
 
   handleWeb3NotAvailable = () => {
@@ -89,69 +90,87 @@ class HomePage extends Component {
           })
         }
       });
-  }  
+  }
 
   render() {
     return this.getJumbotron();
   }
 
-  getHome = () =>{
+  getHome = () => {
     return (
       <main role="main" className="inner  mt-3">
-      <h1 className="">The simplest game in the world.</h1>
-      <p className="lead mt-3">Makhno is a secure block chain based game.</p>
-      <p className="lead">You place bids of a fixed and low value.</p>
-      <p className="lead">For a jackpot that only increases with time!</p>
-      <p className="lead">
-        <button className="btn btn-primary btn-lg" onClick={this.enterGame}>Play</button>
-      </p>
-    </main>
+        <h1 className="">{this.props.dictionary.get('home-banner')}</h1>      
+      <p className="lead mt-3">{this.props.dictionary.get('home-line1')}</p>
+      <p className="lead mt-3">{this.props.dictionary.get('home-line2')}</p>
+        <p className="lead">
+          <button className="btn btn-primary btn-lg" onClick={this.enterGame}>{this.props.dictionary.get('play-the-game')}</button>
+        </p>
+        {this.getLanguageBar()}        
+      </main>
     );
   }
 
-  getRules = () =>{
+  getLanguageBar = () => {
+    return (
+      <div className="container-fluid pt-5">
+        <div className="row">
+          <div className="col-md" onClick={() => this.props.setLang('en')}><a href="#" className="text-muted">EN</a></div>
+          <div className="col-md" onClick={() => this.props.setLang('zh')}><a href="#"  className="text-muted">中文</a></div>
+          <div className="col-md" onClick={() => this.props.setLang('jp')}><a href="#"  className="text-muted">日本</a></div>
+          <div className="col-md" onClick={() => this.props.setLang('th')}><a href="#"  className="text-muted">ไทย</a></div>
+          <div className="col-md" onClick={() => this.props.setLang('ko')}><a href="#"  className="text-muted">한국어</a></div>
+          <div className="col-md" onClick={() => this.props.setLang('fr')}><a href="#"  className="text-muted">FR</a></div>
+          <div className="col-md" onClick={() => this.props.setLang('ru')}><a href="#"  className="text-muted">РУ</a></div>
+          <div className="col-md" onClick={() => this.props.setLang('de')}><a href="#"  className="text-muted">DE</a></div>
+          <div className="col-md" onClick={() => this.props.setLang('pt')}><a href="#"  className="text-muted">POR</a></div>
+        </div>
+      </div>
+    )
+  }
+
+  getRules = () => {
     return (
       <main role="main" className="inner  mt-3">
-      <h1 className="">Rules</h1>
-      <GameRules />
-    </main>
+        <h1 className="">Rules</h1>
+        <GameRules />
+      </main>
     );
   }
 
-  getTerms = () =>{
+  getTerms = () => {
     return (
       <main role="main" className="inner  mt-3">
-      <h1 className="">Terms</h1>
-    </main>
+        <h1 className="">Terms</h1>
+      </main>
     );
   }
 
-  getPrivacy = () =>{
+  getPrivacy = () => {
     return (
       <main role="main" className="inner  mt-3">
-      <h1 className="">Privacy</h1>
-    </main>
+        <h1 className="">Privacy</h1>
+      </main>
     );
-  } 
+  }
 
-  getAttributions = () =>{
+  getAttributions = () => {
     return (
       <main role="main" className="inner  mt-3">
-      <h1 className="">Attributions</h1>
-    </main>
+        <h1 className="">Attributions</h1>
+      </main>
     );
-  }   
+  }
 
   getMetamaskModal = () => {
     return (
       <Modal centered={true} isOpen={this.state.metamaskModal} toggle={this.toggleMetamaskModal} className={this.props.className}>
         <ModalBody>
-        <img src='favicon.ico' className="rounded mx-auto d-block mt-3" alt="Makhno" />
-        <div className="text-center">
-          <p className="text-mono mt-3">You will need to login to <a href='https://metamask.io/' target="_newtab"> MetaMask </a> to continue.</p>
-          <button type="button" className="btn btn-dark btn-shadow my-2 ml-0 text-left mr-1" onClick={this.toggleMetamaskModal}>I understand</button>
+          <img src='favicon.ico' className="rounded mx-auto d-block mt-3" alt="Makhno" />
+          <div className="text-center">
+            <p className="text-mono mt-3">You will need to login to <a href='https://metamask.io/' target="_newtab"> MetaMask </a> to continue.</p>
+            <button type="button" className="btn btn-dark btn-shadow my-2 ml-0 text-left mr-1" onClick={this.toggleMetamaskModal}>I understand</button>
           </div>
-      </ModalBody>
+        </ModalBody>
       </Modal>
     );
   }
@@ -164,10 +183,11 @@ class HomePage extends Component {
           <div className="container d-flex h-100 p-3 mx-auto flex-column">
             <header className="mb-auto">
               <div className="inner">
-                <h3 className="">Makhno</h3>
+                <h3 className="">{this.props.dictionary.get('product-name')}</h3>
                 <nav className="nav justify-content-center">
-                  <a className="nav-link active" href="#" onClick={this.displayHome}>Home</a>
-                  <a className="nav-link" href="#" onClick={this.displayRules}>Rules</a>
+
+                  <a className="nav-link active" href="#" onClick={this.displayHome}>{this.props.dictionary.get('home-nav-home')}</a>
+                  <a className="nav-link" href="#" onClick={this.displayRules}>{this.props.dictionary.get('home-nav-rules')}</a>
                 </nav>
               </div>
             </header>
@@ -186,4 +206,4 @@ class HomePage extends Component {
   }
 }
 
-export default HomePage;
+export default withContext(HomePage);

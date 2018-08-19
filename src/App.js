@@ -3,28 +3,27 @@ import React, { Component } from 'react';
 import HomePage from './containers/HomePage/HomePage';
 import GamePage from './containers/GamePage/GamePage';
 
-export const AuthContext = React.createContext(false);
+import {ContextProvider} from './ContextProvider';
+import getDictionary from './lang/getDictionary';
 
 
 class App extends Component {
 
   state = {
-    authenticated: false,
+    lang : 'en',
     inGame: false,
     user: null
   }
 
   render() {
     return (
-      <AuthContext.Provider value={this.state.authenticated}>
+      <ContextProvider dictionary={getDictionary(this.state.lang)}>
         <div className="App">
           {this.loadPage()}
         </div>
-      </AuthContext.Provider>
+      </ContextProvider>  
     );
   }
-
-
 
   enterGame = (userData) => {
     this.setState({ 
@@ -37,6 +36,12 @@ class App extends Component {
     this.setState({ inGame: false })
   }
 
+  setLang = (lng) => {
+    this.setState({
+      lang : lng
+    })
+  }
+
   loadPage = () => {
     if (this.state.inGame) {
       return this.getGamePage();
@@ -46,7 +51,7 @@ class App extends Component {
   }
 
   getHomePage = () => {
-    return <HomePage enterGame={this.enterGame} />
+    return <HomePage enterGame={this.enterGame} setLang={this.setLang}/>
   }
 
   getGamePage = () => {
