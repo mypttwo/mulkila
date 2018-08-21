@@ -1,9 +1,11 @@
 import React from 'react';
 
+import {withContext} from '../ContextProvider';
+
 let gameNavbar = (props) => {
     return (
         <nav className="navbar navbar-expand-lg">
-            <a className="navbar-brand" onClick={props.exitGame}>CryptoKing</a>
+            <a className="navbar-brand" onClick={props.exitGame}>{props.dictionary.get('product-name')}</a>
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span className="navbar-toggler-icon"></span>
             </button>
@@ -19,4 +21,4 @@ let gameNavbar = (props) => {
     );
 }
 
-export default gameNavbar;
+export default withContext(gameNavbar);

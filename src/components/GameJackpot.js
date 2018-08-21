@@ -20,7 +20,7 @@ let jackpot = (props) => {
                 <button
                     type="button"
                     className="btn btn-shadow text-mono btn-dark btn-sm"
-                    onClick={props.setEndTime}>
+                    onClick={props.getGameData}>
                     Refresh
                 </button>
             </div>

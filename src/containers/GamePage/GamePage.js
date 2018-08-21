@@ -11,7 +11,9 @@ import UserSettings from '../../components/GameUserSettings';
 
 import secondsToHms from '../../utils/secondsConverter';
 import { darcha } from '../../config';
+import gameData from '../../gameData';
 
+import {withContext} from '../../ContextProvider';
 
 class GamePage extends Component {
     GAME = 1;
@@ -37,7 +39,41 @@ class GamePage extends Component {
         ],
         chatMessage: ''
     }
-    socket;    
+
+    gameAddress = gameData.address;
+    gameJsonInterface = gameData.jsonInterface;
+
+    socket;  
+    
+    getGameData = () => {
+        console.log('gameJsonInterface : ',this.gameJsonInterface);
+        
+        let contractInstance = new window.web3.eth.Contract(JSON.parse(this.gameJsonInterface), this.gameAddress);
+        //set (uint _bidSize, uint _interval, uint _jackpot) 
+        contractInstance.methods.set(0.003, 2000).call().then((response) => {
+            console.log('response set : ',response);
+            contractInstance.methods.jackpotOwner().call().then((response) => {
+                    console.log('response jackpotOwner : ',response);            
+                })
+            //start (uint _jackpot)
+            contractInstance.methods.start(0.003).call().then((response) => {
+                console.log('response start : ',response);
+                contractInstance.methods.owner().call().then((response) => {
+                    console.log('response owner : ',response);            
+                })                 
+                contractInstance.methods.jackpotOwner().call().then((response) => {
+                    console.log('response jackpotOwner : ',response);            
+                })                
+                // contractInstance.methods.getCurrentGame.call().call().then((response) => {
+                //     const hexToAscii = window.web3.utils.hexToAscii;
+                //     console.log('response getCurrentGame : ',response);
+            })                
+            })
+
+           
+        }
+
+    
 
     bid = () => {
         console.log('NOT IMPLEMENTED!!!!!!!');
@@ -76,6 +112,9 @@ class GamePage extends Component {
     }
 
     componentDidMount() {
+
+        this.getGameData();
+        
         console.log('chat connected from client');
         this.socket = socketioClient(darcha);
 
@@ -184,7 +223,7 @@ class GamePage extends Component {
                 <div className="row">
                     <div className="col-sm-6">
                         <Jackpot jackpotValue = {this.state.jackpotValue} timeRemaining = {this.state.timeRemaining} 
-                        bid = {this.bid} gameBidSize = {this.state.gameBidSize} setEndTime = {this.setEndTime}/>
+                        bid = {this.bid} gameBidSize = {this.state.gameBidSize} getGameData = {this.getGameData}/>
                         <GameSettings gameBidSize={this.state.gameBidSize} gameInterval={this.state.gameInterval} />
                         <AfterBidModal />
                     </div>
@@ -199,4 +238,4 @@ class GamePage extends Component {
     }
 }
 
-export default GamePage;
+export default withContext(GamePage);
