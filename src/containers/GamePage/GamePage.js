@@ -23,60 +23,59 @@ class GamePage extends Component {
         display: this.GAME,
         timeRemaining: ' ',
         endTime: 0,
-        jackpotValue: 0.054,
-        gameBidSize: 0.0039,
-        gameInterval: 120,
-        gameEndsAt: 'unknown',
+        jackpotValue: 0,
+        jackpotOwner: '',
+        gameBidSize: 0,
+        gameStatus: 0, 
         email: '',
         userName: '',
         chatPayload: [],
-        recentBidList : [
-            'Fragment (FR46M3N7)',
-            'Grim (6R1M)',
-            'Cryptonic (CRYP70N1C)',
-            'Perplex (P3RPL3X)',
-            'Moonshine(M00N5H1N3)Moonshine(M00N5H1N3)Moonshine(M00N5H1N3)Moonshine(M00N5H1N3)Moonshine(M00N5H1N3)Moonshine(M00N5H1N3)Moonshine(M00N5H1N3)Moonshine(M00N5H1N3)Moonshine(M00N5H1N3)'            
-        ],
+        recentBidList : [],
         chatMessage: ''
     }
 
     gameAddress = gameData.address;
     gameJsonInterface = gameData.jsonInterface;
 
+    contractInstance;
+
     socket;  
     
     getGameData = () => {
-        console.log('gameJsonInterface : ',this.gameJsonInterface);
-        
-        let contractInstance = new window.web3.eth.Contract(JSON.parse(this.gameJsonInterface), this.gameAddress);
-        //set (uint _bidSize, uint _interval, uint _jackpot) 
-        contractInstance.methods.set(0.003, 2000).call().then((response) => {
-            console.log('response set : ',response);
-            contractInstance.methods.jackpotOwner().call().then((response) => {
-                    console.log('response jackpotOwner : ',response);            
-                })
-            //start (uint _jackpot)
-            contractInstance.methods.start(0.003).call().then((response) => {
-                console.log('response start : ',response);
-                contractInstance.methods.owner().call().then((response) => {
-                    console.log('response owner : ',response);            
-                })                 
-                contractInstance.methods.jackpotOwner().call().then((response) => {
-                    console.log('response jackpotOwner : ',response);            
-                })                
-                // contractInstance.methods.getCurrentGame.call().call().then((response) => {
-                //     const hexToAscii = window.web3.utils.hexToAscii;
-                //     console.log('response getCurrentGame : ',response);
-            })                
-            })
-
+        this.contractInstance.methods.getCurrentGame.call().call()
+        .then((response) => {
+            //const hexToAscii = window.web3.utils.hexToAscii;
+            console.log('response getCurrentGame : ',response);
            
-        }
-
-    
+            this.setState({
+                gameStatus : parseInt(response[0]),
+                jackpotValue : response[1],
+                jackpotOwner: response[2],
+                gameBidSize: response[3]
+            })
+        })
+    }
 
     bid = () => {
-        console.log('NOT IMPLEMENTED!!!!!!!');
+        // this.contractInstance.events.BidPlaced((error, response) => {
+        //     if(error){
+        //         console.log('Bid Placed error', error);
+                
+        //     } else {
+        //         console.log('BidPLaced response : ',response);
+                
+        //     }
+
+        // });
+        
+        this.contractInstance.methods.bid().send({ from: this.props.userData.ethAddress, 
+                gas: 3000000, value: this.state.gameBidSize
+            }, function(err, res){
+            if(err){
+                console.log(err);
+            } 
+            console.log(res);
+        });
     }
 
     setEndTime = () => {
@@ -109,11 +108,19 @@ class GamePage extends Component {
         console.log('chat disconnected from client');
         this.socket.disconnect();
         clearInterval(this.intervalID);
+        clearInterval(this.intervalRefresh);
     }
 
+
     componentDidMount() {
+        this.contractInstance = new window.web3.eth.Contract(JSON.parse(this.gameJsonInterface), this.gameAddress);
 
         this.getGameData();
+
+        this.intervalRefresh = setInterval(
+            () => this.getGameData(),
+            5000
+        );
         
         console.log('chat connected from client');
         this.socket = socketioClient(darcha);
@@ -218,13 +225,19 @@ class GamePage extends Component {
     }
 
     getGameArea = () => {
+        
+        let disabled = false;
+        if(this.state.gameStatus === 0){
+            disabled = true;
+        }
+
         return (
             <div>
                 <div className="row">
                     <div className="col-sm-6">
-                        <Jackpot jackpotValue = {this.state.jackpotValue} timeRemaining = {this.state.timeRemaining} 
-                        bid = {this.bid} gameBidSize = {this.state.gameBidSize} getGameData = {this.getGameData}/>
-                        <GameSettings gameBidSize={this.state.gameBidSize} gameInterval={this.state.gameInterval} />
+                        <Jackpot jackpotValue = {this.state.jackpotValue} jackpotOwner = {this.state.jackpotOwner} timeRemaining = {this.state.timeRemaining} 
+                        bid = {this.bid} gameBidSize = {this.state.gameBidSize} getGameData = {this.getGameData} bidDisabled = {disabled}/>
+                        <GameSettings gameBidSize={this.state.gameBidSize} gameStatus={this.state.gameStatus} ethAddress={this.props.userData.ethAddress} networkName={this.props.networkName} />                        
                         <AfterBidModal />
                     </div>
                     <div className="col-sm-6">

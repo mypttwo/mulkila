@@ -3,11 +3,22 @@ import React from 'react';
 import secondsToHms from '../utils/secondsConverter';
 
 let gameSettings = (props) => {
+    let gameStatus = 'Ended';
+    if(props.gameStatus === 1){
+        gameStatus = 'Started'
+    }
+
     return (
-        <div className="card text-center mt-3">
-            <div className="card-header">Game Settings</div>
-            <p className="mt-3">Bid Value (Fixed) : {props.gameBidSize}</p>
-            <p >Interval : {secondsToHms(props.gameInterval)}</p>
+        <div className="card mt-3">
+          <div className="card-header">Game ({gameStatus})</div>
+            <div className="card-body align-items-start">
+            <h6 className="card-subtitle mb-2 text-muted">Account</h6>
+                <p className="card-text text-truncate">{props.ethAddress}</p>
+                <h6 className="card-subtitle mb-2 text-muted">Network</h6>    
+                <p className="card-text text-truncate">{props.networkName}</p>  
+                <h6 className="card-subtitle mb-2 text-muted">Bid Value (Fixed) </h6>    
+                <p className="card-text text-truncate">{props.gameBidSize}</p>                  
+            </div>
         </div>
     );
 }

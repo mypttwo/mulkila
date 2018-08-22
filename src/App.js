@@ -12,7 +12,8 @@ class App extends Component {
   state = {
     lang : 'en',
     inGame: false,
-    user: null
+    user: null,
+    networkName : null
   }
 
   render() {
@@ -25,10 +26,11 @@ class App extends Component {
     );
   }
 
-  enterGame = (userData) => {
+  enterGame = (userData, networkName) => {
     this.setState({ 
       inGame : true,
-      user : userData
+      user : userData,
+      networkName : networkName
     })
   }
 
@@ -55,7 +57,7 @@ class App extends Component {
   }
 
   getGamePage = () => {
-    return <GamePage userData={this.state.user} exitGame={this.exitGame} />
+    return <GamePage userData={this.state.user} networkName={this.state.networkName} exitGame={this.exitGame} />
   }
 }
 

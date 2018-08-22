@@ -68,28 +68,39 @@ class HomePage extends Component {
   handleWeb3Available = (accounts) => {
     console.log('web3,version', window.web3.version);
     getNetwork().then((networkName) => {
-      console.log(networkName);
-    });
 
+      console.log(networkName);
+      if(networkName !== 'Ropsten'){
+        console.log('Bad Network : ', networkName);
+      } else {
+        console.log('Good Network : ', networkName);
+        this.loginUser(accounts, networkName)
+      }
+
+      
+    });
+  }
+
+  loginUser = (accounts, networkName) => {
     let address = accounts[0];
-    console.log('add', address);
-    axios.get(`${darcha}/user?address=${address}`)
-      .then((response) => {
-        console.log('response_', response);
-        this.props.enterGame(response.data);
-      })
-      .catch((error) => {
-        console.log('Error', error);
-        if (error.response.status === 404) {
-          console.log(`User ${accounts} not found`);
-          axios.post(`${darcha}/user`, { ethAddress: address }).then((response) => {
-            console.log('new user ', response);
-            this.props.enterGame();
-          }).catch((error) => {
-            console.log('Error', error);
-          })
-        }
-      });
+      console.log('address', address);
+      axios.get(`${darcha}/user?address=${address}`)
+        .then((response) => {
+          console.log('response_', response);
+          this.props.enterGame(response.data, networkName);
+        })
+        .catch((error) => {
+          console.log('Error', error);
+          if (error.response.status === 404) {
+            console.log(`Address ${address} not found`);
+            axios.post(`${darcha}/user`, { ethAddress: address }).then((response) => {
+              console.log('New User ', response);
+              this.props.enterGame(response.data, networkName);
+            }).catch((error) => {
+              console.log('Error', error);
+            })
+          }
+        });
   }
 
   render() {
