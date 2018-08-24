@@ -45,29 +45,24 @@ class GamePage extends Component {
         this.contractInstance.methods.getCurrentGame.call().call()
         .then((response) => {
             //const hexToAscii = window.web3.utils.hexToAscii;
-            console.log('response getCurrentGame : ',response);
+            //console.log('response getCurrentGame : ',response);
+
+            let recentBidList = [...this.state.recentBidList]
+            if(response[1] !== this.state.jackpotValue){
+                recentBidList.unshift(response[2]);
+            }
            
             this.setState({
                 gameStatus : parseInt(response[0]),
                 jackpotValue : response[1],
                 jackpotOwner: response[2],
-                gameBidSize: response[3]
+                gameBidSize: response[3],
+                recentBidList : recentBidList
             })
         })
     }
 
     bid = () => {
-        // this.contractInstance.events.BidPlaced((error, response) => {
-        //     if(error){
-        //         console.log('Bid Placed error', error);
-                
-        //     } else {
-        //         console.log('BidPLaced response : ',response);
-                
-        //     }
-
-        // });
-        
         this.contractInstance.methods.bid().send({ from: this.props.userData.ethAddress, 
                 gas: 3000000, value: this.state.gameBidSize
             }, function(err, res){
@@ -117,10 +112,17 @@ class GamePage extends Component {
 
         this.getGameData();
 
+        this.contractInstance.events.BidPlaced()
+        .on("data", function(event) {
+            //let returnedData = event.returnValues;
+            console.log("A new zombie was born!");
+          }).on("error", console.error);
+
         this.intervalRefresh = setInterval(
             () => this.getGameData(),
             5000
         );
+
         
         console.log('chat connected from client');
         this.socket = socketioClient(darcha);

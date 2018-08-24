@@ -26,7 +26,7 @@ let playerArea = (props) => {
         <div>
         <div className="card text-center mt-3">
             <div className="card-header">Recent Bids</div>
-            <ul className="list-group">
+            <ul className="list-group scrolling-wrapper">
                 {getRecentBidLi(props)}
             </ul>
         </div>
