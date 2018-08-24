@@ -72,6 +72,7 @@ class HomePage extends Component {
       console.log(networkName);
       if(networkName !== 'Ropsten'){
         console.log('Bad Network : ', networkName);
+        this.toggleMetamaskModal();
       } else {
         console.log('Good Network : ', networkName);
         this.loginUser(accounts, networkName)
@@ -179,6 +180,7 @@ class HomePage extends Component {
           <img src='favicon.ico' className="rounded mx-auto d-block mt-3" alt="Makhno" />
           <div className="text-center">
             <p className="text-mono mt-3">You will need to login to <a href='https://metamask.io/' target="_newtab"> MetaMask </a> to continue.</p>
+            <p className="text-mono mt-3">Currently the game only works on the Ropsten network.</p><p> Dont forget to change to the Ropsten network and get free <a href='https://faucet.ropsten.be/' target="_newtab"> Ropsten ether </a> to play the simplest game in the world!</p>
             <button type="button" className="btn btn-dark btn-shadow my-2 ml-0 text-left mr-1" onClick={this.toggleMetamaskModal}>I understand</button>
           </div>
         </ModalBody>
